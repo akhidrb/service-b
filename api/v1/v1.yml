@@ -1,0 +1,58 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Service B
+  description: API for Retrieving Daily Manifest File
+
+  contact:
+    name: Ibrahim Khidr
+    email: akhidrb@gmail.com
+
+servers:
+  - url: http://localhost:8081/
+
+components:
+  schemas:
+    Error:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          type: array
+          items:
+            type: string
+
+    GetCargosResult:
+      properties:
+        daily_manifest:
+          type: object
+          format: binary
+      required:
+        - daily_manifest
+
+paths:
+  '/cargos':
+    get:
+      summary: Get Daily Manifest File of Cargos
+      operationId: GetDailyManifest
+      responses:
+        '200':
+          description: Daily Manifest
+          content:
+            'application/octet-stream':
+              schema:
+                $ref: '#/components/schemas/GetCargosResult'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        'default':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
