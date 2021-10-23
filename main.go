@@ -13,14 +13,13 @@ import (
 )
 
 type Config struct {
-	ListenAddress  string
-	Timeout        int
-	KafkaServer    string
-	KafkaTopic     string
-	ConsumerGroup  string
-	MongoURI       string
-	DatabaseName   string
-	CollectionName string
+	ListenAddress string
+	Timeout       int
+	KafkaServer   string
+	KafkaTopic    string
+	ConsumerGroup string
+	MongoURI      string
+	DatabaseName  string
 }
 
 func main() {
@@ -72,18 +71,12 @@ func main() {
 			Value:       "cargos",
 			Destination: &conf.DatabaseName,
 		},
-		&cli.StringFlag{
-			Name:        "collection-name",
-			Usage:       "MongoDB Collection Name",
-			Value:       "Cameroon",
-			Destination: &conf.CollectionName,
-		},
 	}
 
 	app.Action = func(context *cli.Context) error {
 		timeout := time.Duration(conf.Timeout) * time.Second
 		kafkaConfig := events.InitKafkaConfig(conf.KafkaServer, conf.ConsumerGroup, conf.KafkaTopic)
-		mongo := persistence.InitMongo(context.Context, conf.MongoURI, conf.DatabaseName, conf.CollectionName)
+		mongo := persistence.InitMongo(context.Context, conf.MongoURI, conf.DatabaseName)
 		err := mongo.Connect()
 		if err != nil {
 			log.Fatal(err)

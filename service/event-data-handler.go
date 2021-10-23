@@ -10,7 +10,7 @@ import (
 )
 
 type Order struct {
-	Id          int     `json:"courier_id"`
+	Id          int     `json:"order_id"`
 	Email       string  `json:"email"`
 	PhoneNumber string  `json:"phone_number"`
 	Weight      float64 `json:"weight"`
@@ -46,22 +46,39 @@ func parseEventMessages(messages []byte) (map[string][]Order, error) {
 }
 
 func (s *Service) storeOrdersToCollectionByCountry(orders map[string][]Order) {
-	if cameroon, ok := orders["Cameroon"]; ok {
-		cameroonData := parseCameroonCollection(cameroon)
-		s.MongoConfig.BulkInsertCameroonOrders(cameroonData)
+	countries := []string{"Cameroon", "Ethiopia", "Morocco", "Mozambique", "Uganda"}
+	for _, country := range countries {
+		go func(country string) {
+			if ordersList, ok := orders[country]; ok {
+				parsedData := parseToCollectionModel(ordersList)
+				s.MongoConfig.BulkInsertOrders(country, parsedData)
+			}
+		}(country)
 	}
 }
 
-func parseCameroonCollection(cameroonOrders []Order) []persistence.CameroonOrder {
-	cameroonData := make([]persistence.CameroonOrder, 0)
-	for _, order := range cameroonOrders {
-		cameroonOrder := persistence.CameroonOrder{
-			Id:        primitive.NewObjectID(),
-			CreatedAt: time.Now(),
-			OrderId:   order.Id,
-			Weight:    order.Weight,
+func parseToCollectionModel(orders []Order) []persistence.Order {
+	orderData := make([]persistence.Order, 0)
+	firstOrderInCourier := true
+	var orderModel persistence.Order
+	for i := range orders {
+		order := orders[i]
+		if firstOrderInCourier {
+			orderModel = persistence.Order{
+				Id:          primitive.NewObjectID(),
+				CreatedAt:   time.Now(),
+				TotalWeight: 0,
+			}
+			firstOrderInCourier = false
 		}
-		cameroonData = append(cameroonData, cameroonOrder)
+		if orderModel.TotalWeight+order.Weight <= 500 {
+			orderModel.TotalWeight += order.Weight
+			orderModel.OrderIds = append(orderModel.OrderIds, order.Id)
+		} else {
+			firstOrderInCourier = true
+			orderData = append(orderData, orderModel)
+			orderModel = persistence.Order{}
+		}
 	}
-	return cameroonData
+	return orderData
 }

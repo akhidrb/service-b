@@ -9,19 +9,17 @@ import (
 )
 
 type MongoConfig struct {
-	ctx                context.Context
-	uri                string
-	database           string
-	client             *mongo.Client
-	cameroonCollection string
+	ctx      context.Context
+	uri      string
+	database string
+	client   *mongo.Client
 }
 
-func InitMongo(ctx context.Context, uri, database, cameroonCollection string) *MongoConfig {
+func InitMongo(ctx context.Context, uri, database string) *MongoConfig {
 	return &MongoConfig{
-		ctx:                ctx,
-		uri:                uri,
-		database:           database,
-		cameroonCollection: cameroonCollection,
+		ctx:      ctx,
+		uri:      uri,
+		database: database,
 	}
 }
 

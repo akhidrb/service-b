@@ -10,19 +10,19 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type CameroonOrder struct {
-	Id        primitive.ObjectID `json:"id"`
-	CreatedAt time.Time          `json:"created_at"`
-	OrderId   int                `json:"order_id"`
-	Weight    float64            `json:"weight"`
+type Order struct {
+	Id          primitive.ObjectID `json:"id" bson:"_id"`
+	CreatedAt   time.Time          `json:"created_at" bson:"created_at"`
+	OrderIds    []int              `json:"order_ids" bson:"order_ids"`
+	TotalWeight float64            `json:"total_weight" bson:"total_weight"`
 }
 
-func (m *MongoConfig) BulkInsertCameroonOrders(orders []CameroonOrder) {
-	coll := m.client.Database(m.database).Collection(m.cameroonCollection)
+func (m *MongoConfig) BulkInsertOrders(collection string, orders []Order) {
+	coll := m.client.Database(m.database).Collection(collection)
 	var operations []mongo.WriteModel
 	for i := range orders {
 		order := orders[i]
-		updateFilter := bson.M{"order_id": order.OrderId}
+		updateFilter := bson.M{"_id": order.Id}
 		updateOperation := bson.M{
 			"$set": order,
 		}
