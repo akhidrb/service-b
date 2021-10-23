@@ -1,41 +1,42 @@
 package events
 
 import (
-	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"context"
+
 	"github.com/labstack/gommon/log"
+	"github.com/segmentio/kafka-go"
 )
 
 type KafkaConfig struct {
-	BootstrapServer string
-	ConsumerGroupId string
-	Topic           string
+	ctx             context.Context
+	bootstrapServer string
+	consumerGroup   string
+	topic           string
 }
 
-func InitKafkaConfig(bootstrapServer, consumerGroupId, topic string) *KafkaConfig {
+func InitKafkaConfig(ctx context.Context, bootstrapServer, consumerGroupId, topic string) *KafkaConfig {
 	return &KafkaConfig{
-		BootstrapServer: bootstrapServer,
-		ConsumerGroupId: consumerGroupId,
-		Topic:           topic,
+		ctx:             ctx,
+		bootstrapServer: bootstrapServer,
+		consumerGroup:   consumerGroupId,
+		topic:           topic,
 	}
 }
 
 func (k *KafkaConfig) RunConsumer(messages chan []byte) error {
-	c, err := kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers": k.BootstrapServer,
-		"group.id":          k.ConsumerGroupId,
-		"auto.offset.reset": "latest",
+	r := kafka.NewReader(kafka.ReaderConfig{
+		Brokers:  []string{k.bootstrapServer},
+		GroupID:  k.consumerGroup,
+		Topic:    k.topic,
+		MinBytes: 10e3, // 10KB
+		MaxBytes: 10e6, // 10MB
 	})
-	if err != nil {
-		return err
-	}
-	defer c.Close()
-	c.SubscribeTopics([]string{k.Topic}, nil)
+	defer r.Close()
 	for {
-		msg, err := c.ReadMessage(-1)
-		if err == nil {
-			messages <- msg.Value
-		} else {
+		m, err := r.ReadMessage(k.ctx)
+		if err != nil {
 			log.Error(err)
 		}
+		messages <- m.Value
 	}
 }

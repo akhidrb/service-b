@@ -3,11 +3,12 @@ module khidr/service-b
 go 1.17
 
 require (
-	github.com/confluentinc/confluent-kafka-go v1.7.0
 	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/go-chi/render v1.0.1
 	github.com/labstack/gommon v0.3.0
+	github.com/segmentio/kafka-go v0.4.22
 	github.com/urfave/cli/v2 v2.3.0
+	go.mongodb.org/mongo-driver v1.7.3
 )
 
 require (
@@ -21,6 +22,7 @@ require (
 	github.com/labstack/echo/v4 v4.1.11 // indirect
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/mattn/go-isatty v0.0.10 // indirect
+	github.com/pierrec/lz4 v2.6.0+incompatible // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/russross/blackfriday/v2 v2.0.1 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
@@ -30,7 +32,6 @@ require (
 	github.com/xdg-go/scram v1.0.2 // indirect
 	github.com/xdg-go/stringprep v1.0.2 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20181117223130-1be2e3e5546d // indirect
-	go.mongodb.org/mongo-driver v1.7.3 // indirect
 	golang.org/x/crypto v0.0.0-20200302210943-78000ba7a073 // indirect
 	golang.org/x/net v0.0.0-20191112182307-2180aed22343 // indirect
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e // indirect

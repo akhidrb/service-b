@@ -75,7 +75,7 @@ func main() {
 
 	app.Action = func(context *cli.Context) error {
 		timeout := time.Duration(conf.Timeout) * time.Second
-		kafkaConfig := events.InitKafkaConfig(conf.KafkaServer, conf.ConsumerGroup, conf.KafkaTopic)
+		kafkaConfig := events.InitKafkaConfig(context.Context, conf.KafkaServer, conf.ConsumerGroup, conf.KafkaTopic)
 		mongo := persistence.InitMongo(context.Context, conf.MongoURI, conf.DatabaseName)
 		err := mongo.Connect()
 		if err != nil {
