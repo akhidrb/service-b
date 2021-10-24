@@ -18,9 +18,34 @@ func NewV1(svc *service.Service) *V1 {
 	}
 }
 
+type CargosResponse struct {
+	Cargos []Cargo `json:"cargos"`
+}
+
+type Cargo struct {
+	OrderIds    []int   `json:"order_ids"`
+	TotalWeight float64 `json:"total_weight"`
+}
+
 func (v *V1) GetDailyManifest(w http.ResponseWriter, r *http.Request) {
-	// render.Status(r, http.StatusOK)
-	// render.JSON(w, r, res)
+	orders, err := v.svc.MongoConfig.GetDailyManifest("Cameroon")
+	if err != nil {
+		handleError(w, r, err, "", http.StatusInternalServerError)
+		return
+	}
+	cargos := make([]Cargo, 0)
+	for _, order := range orders {
+		cargo := Cargo{
+			OrderIds:    order.OrderIds,
+			TotalWeight: order.TotalWeight,
+		}
+		cargos = append(cargos, cargo)
+	}
+	cargosResponse := CargosResponse{
+		Cargos: cargos,
+	}
+	render.Status(r, http.StatusOK)
+	render.JSON(w, r, cargosResponse)
 }
 
 func handleError(w http.ResponseWriter, r *http.Request, err error, message string, status int) {

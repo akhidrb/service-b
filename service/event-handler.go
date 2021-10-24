@@ -59,26 +59,30 @@ func (s *Service) storeOrdersToCollectionByCountry(orders map[string][]Order) {
 
 func parseToCollectionModel(orders []Order) []persistence.Order {
 	orderData := make([]persistence.Order, 0)
-	firstOrderInCourier := true
-	var orderModel persistence.Order
+	var orderModel *persistence.Order
 	for i := range orders {
 		order := orders[i]
-		if firstOrderInCourier {
-			orderModel = persistence.Order{
+		if orderModel == nil {
+			orderModel = &persistence.Order{
 				Id:          primitive.NewObjectID(),
 				CreatedAt:   time.Now(),
 				TotalWeight: 0,
 			}
-			firstOrderInCourier = false
 		}
 		if orderModel.TotalWeight+order.Weight <= 500 {
 			orderModel.TotalWeight += order.Weight
 			orderModel.OrderIds = append(orderModel.OrderIds, order.Id)
 		} else {
-			firstOrderInCourier = true
-			orderData = append(orderData, orderModel)
-			orderModel = persistence.Order{}
+			orderData = append(orderData, *orderModel)
+			orderModel = nil
+			orderModel = &persistence.Order{
+				Id:          primitive.NewObjectID(),
+				CreatedAt:   time.Now(),
+				OrderIds:    []int{order.Id},
+				TotalWeight: order.Weight,
+			}
 		}
 	}
+	orderData = append(orderData, *orderModel)
 	return orderData
 }

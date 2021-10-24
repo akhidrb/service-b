@@ -39,3 +39,23 @@ func (m *MongoConfig) BulkInsertOrders(collection string, orders []Order) {
 		log.Error(err)
 	}
 }
+
+func (m *MongoConfig) GetDailyManifest(collection string) ([]Order, error) {
+	coll := m.client.Database(m.database).Collection(collection)
+	query := bson.M{
+		"created_at": bson.M{
+			"$gte": time.Now().Truncate(24 * time.Hour),
+			"$lt":  time.Now().Add(24 * time.Hour).Truncate(24 * time.Hour),
+		},
+	}
+	cursor, err := coll.Find(m.ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	var orders []Order
+	err = cursor.All(m.ctx, &orders)
+	if err != nil {
+		return nil, err
+	}
+	return orders, nil
+}
