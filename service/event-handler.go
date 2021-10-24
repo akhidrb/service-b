@@ -50,14 +50,14 @@ func (s *Service) storeOrdersToCollectionByCountry(orders map[string][]Order) {
 	for _, country := range countries {
 		go func(country string) {
 			if ordersList, ok := orders[country]; ok {
-				parsedData := parseToCollectionModel(ordersList)
+				parsedData := constructOrdersBasedOnWeights(ordersList)
 				s.MongoConfig.BulkInsertOrders(country, parsedData)
 			}
 		}(country)
 	}
 }
 
-func parseToCollectionModel(orders []Order) []persistence.Order {
+func constructOrdersBasedOnWeights(orders []Order) []persistence.Order {
 	orderData := make([]persistence.Order, 0)
 	var orderModel *persistence.Order
 	for i := range orders {

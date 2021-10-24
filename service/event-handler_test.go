@@ -1,24 +1,29 @@
 package service
 
 import (
+	"math"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestWeightMapping(t *testing.T) {
+// This is to make sure all the orders are constructed and nothing is left out
+func TestOrderWeightsConstructor(t *testing.T) {
 	orders := createOrders()
-	orderCollection := parseToCollectionModel(orders)
+	orderCollection := constructOrdersBasedOnWeights(orders)
 	totalOrderIds := 0
+	totalWeight := 0.0
 	for _, order := range orderCollection {
 		totalOrderIds += len(order.OrderIds)
+		totalWeight += order.TotalWeight
 	}
-	assert.Equal(t, 200, totalOrderIds)
+	assert.Equal(t, 1000, totalOrderIds)
+	assert.Equal(t, 1000*24.45, math.Round(totalWeight*100)/100)
 }
 
 func createOrders() []Order {
 	orders := make([]Order, 0)
-	for i := 1; i <= 200; i++ {
+	for i := 1; i <= 1000; i++ {
 		order := Order{
 			Id:          i,
 			Email:       "email@email.com",
