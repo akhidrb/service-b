@@ -1,6 +1,10 @@
 package service
 
-import "math"
+import (
+	"math"
+
+	"golang.org/x/sync/errgroup"
+)
 
 type CargosResponse struct {
 	Cargos []Cargo `json:"cargos"`
@@ -13,12 +17,20 @@ type Cargo struct {
 
 func (s *Service) GetDailyManifest() (*CargosResponse, error) {
 	cargos := make([]Cargo, 0)
+	var eg errgroup.Group
 	collections := []string{"Cameroon", "Ethiopia", "Morocco", "Mozambique", "Uganda"}
-	for _, collection := range collections {
-		err := s.getCargosByCollection(collection, &cargos)
-		if err != nil {
-			return nil, err
-		}
+	for i := range collections {
+		collection := collections[i]
+		eg.Go(func() error {
+			err := s.getCargosByCollection(collection, &cargos)
+			if err != nil {
+				return err
+			}
+			return nil
+		})
+	}
+	if err := eg.Wait(); err != nil {
+		return nil, err
 	}
 	cargosResponse := CargosResponse{
 		Cargos: cargos,
