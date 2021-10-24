@@ -31,7 +31,6 @@ func (s *Service) RunDataHandler() {
 					s.storeOrdersToCollectionByCountry(orders)
 				}
 			}
-
 		}
 	}(messages)
 }

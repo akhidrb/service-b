@@ -36,7 +36,8 @@ func (k *KafkaConfig) RunConsumer(messages chan []byte) error {
 		m, err := r.ReadMessage(k.ctx)
 		if err != nil {
 			log.Error(err)
+		} else {
+			messages <- m.Value
 		}
-		messages <- m.Value
 	}
 }

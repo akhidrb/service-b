@@ -24,12 +24,14 @@ components:
             type: string
 
     GetCargosResult:
+      type: object
       properties:
-        daily_manifest:
-          type: object
-          format: binary
+        cargos:
+          type: array
+          items:
+            type: object
       required:
-        - daily_manifest
+        - cargos
 
 paths:
   '/cargos':
@@ -40,7 +42,7 @@ paths:
         '200':
           description: Daily Manifest
           content:
-            'application/octet-stream':
+            'application/json':
               schema:
                 $ref: '#/components/schemas/GetCargosResult'
         '500':

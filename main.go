@@ -79,7 +79,11 @@ func main() {
 		mongo := persistence.InitMongo(context.Context, conf.MongoURI, conf.DatabaseName)
 		err := mongo.Connect()
 		if err != nil {
-			log.Fatal(err)
+			return err
+		}
+		err = mongo.CreateIndexes()
+		if err != nil {
+			return err
 		}
 		defer func() {
 			if err := mongo.Disconnect(); err != nil {
@@ -88,7 +92,7 @@ func main() {
 		}()
 		serviceB, err := service.New(kafkaConfig, mongo)
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 		serviceB.RunDataHandler()
 		server := api.New(conf.ListenAddress, timeout, serviceB)
