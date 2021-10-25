@@ -3,8 +3,12 @@
 ### Description
 This service has two major responsibilities:
 - Consuming data from kafka and storing them in MongoDB
+    - First, MongoDB was used because of several points;
+        - It is a NoSQL database and the structure of our data can change at a later point depending on the requirements.
+        - We are handling a huge amount of data and MongoDB is great in handling large amounts of data and horizontal scaling.
+        - Also, aggregations are done on the data before the are store in the database to lessen querying time, however, if we decide to do the aggregations when querying MongoDB is great for that.
     - Orders are separate by country and stored in different Collections in MongoDB for faster querying. It seemed the right approach in this exercise because we already know the countries that the data being processed maps too where if it was something dynamic and dependent on the user then this approach would not necessarily be the best.
-    - Orders are grouped together based on the weight limit after they are consumed from kafka and before they are added to the database. This approach was done to avoid excessive processing when API calls are made on the endpoint to retrieve the daily manifest. It came in handy that the weight limit was known beforehand and not passed as a parameter when querying for the daily manifest. 
+    - Orders are grouped together based on the weight limit after they are consumed from kafka and before they are added to the database. This approach was done to avoid excessive processing or aggregations when API calls are made on the endpoint to retrieve the daily manifest. It came in handy that the weight limit was known beforehand and not passed as a parameter when querying for the daily manifest. 
     - The weight limit is passed as an argument when running the service so it can be changed whenever needed. Changing the weight limit at run time might cause a problem because it can be changed while data is being consumed so that would cause inconsistency in the data being stored in the database. Passing the weight limit can be useful if we want to run several instances of the service and storing them on different databases if we have couriers with Vans of different sizes and we want to run an instance for each weight limit.
 - API that returns a daily manifest file of the orders based on the timestamp of their addition to the database. 
     - So an index of the `created_at` field is created for faster querying.
