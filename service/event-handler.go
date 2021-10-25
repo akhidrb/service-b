@@ -49,14 +49,14 @@ func (s *Service) storeOrdersToCollectionByCountry(orders map[string][]Order) {
 	for _, country := range countries {
 		go func(country string) {
 			if ordersList, ok := orders[country]; ok {
-				parsedData := constructOrdersBasedOnWeights(ordersList)
+				parsedData := constructOrdersBasedOnWeightLimit(ordersList, s.CargoWeightLimit)
 				s.MongoConfig.BulkInsertOrders(country, parsedData)
 			}
 		}(country)
 	}
 }
 
-func constructOrdersBasedOnWeights(orders []Order) []persistence.Order {
+func constructOrdersBasedOnWeightLimit(orders []Order, weightLimit float64) []persistence.Order {
 	orderData := make([]persistence.Order, 0)
 	var orderModel *persistence.Order
 	for i := range orders {
@@ -68,7 +68,7 @@ func constructOrdersBasedOnWeights(orders []Order) []persistence.Order {
 				TotalWeight: 0,
 			}
 		}
-		if orderModel.TotalWeight+order.Weight <= 500 {
+		if orderModel.TotalWeight+order.Weight <= weightLimit {
 			orderModel.TotalWeight += order.Weight
 			orderModel.OrderIds = append(orderModel.OrderIds, order.Id)
 		} else {

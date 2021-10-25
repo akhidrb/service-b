@@ -10,7 +10,7 @@ import (
 // This is to make sure all the orders are constructed and nothing is left out
 func TestOrderWeightsConstructor(t *testing.T) {
 	orders := createOrders()
-	orderCollection := constructOrdersBasedOnWeights(orders)
+	orderCollection := constructOrdersBasedOnWeightLimit(orders, 500)
 	totalOrderIds := 0
 	totalWeight := 0.0
 	for _, order := range orderCollection {

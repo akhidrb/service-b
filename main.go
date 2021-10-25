@@ -13,13 +13,14 @@ import (
 )
 
 type Config struct {
-	ListenAddress string
-	Timeout       int
-	KafkaServer   string
-	KafkaTopic    string
-	ConsumerGroup string
-	MongoURI      string
-	DatabaseName  string
+	ListenAddress    string
+	Timeout          int
+	KafkaServer      string
+	KafkaTopic       string
+	ConsumerGroup    string
+	MongoURI         string
+	DatabaseName     string
+	CargoWeightLimit float64
 }
 
 func main() {
@@ -71,6 +72,12 @@ func main() {
 			Value:       "cargos",
 			Destination: &conf.DatabaseName,
 		},
+		&cli.Float64Flag{
+			Name:        "cargo-weight-limit",
+			Usage:       "Cargo Weight limit",
+			Value:       500,
+			Destination: &conf.CargoWeightLimit,
+		},
 	}
 
 	app.Action = func(context *cli.Context) error {
@@ -90,7 +97,7 @@ func main() {
 				log.Fatal(err)
 			}
 		}()
-		serviceB, err := service.New(kafkaConfig, mongo)
+		serviceB, err := service.New(kafkaConfig, mongo, conf.CargoWeightLimit)
 		if err != nil {
 			return err
 		}
